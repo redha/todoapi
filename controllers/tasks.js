@@ -50,13 +50,33 @@ const taskController = {
         //return {rows: [newTask], error: null};
         return db.addTask(newTask);
     },
-    updateTask: async function (id, newTask){
-        if (!/[0-9]+/.test(id)){
-            return {error: `(${id}) is NOT a valid Id.`}
-        }
+    updateTask: async function (id, task){
+        // validation
+        // if 'description' in task
+        // if 'dueDate' in task
+        try{
+            if(!id){  // id must be provided
+                throw new Error(`No id provided`);
+            }
+            else{
+                task.id = id;
+            }
+            // !Important: if optional value is not provided for update it will be set to it's default value 
+            // EVEN if it already has another value ABSURD
+            task = taskEntity.getCompleteValidTask(task); // validate all task object properties
 
-        console.log('Task Controller - Updating a task');
-        throw new Error('not implemented');
+            return await db.updateTask({
+                id, 
+                description: task.description, 
+                dueDate: task.dueDate, 
+                modifiedOn: new Date(), 
+                done: task.done, 
+                priority: task.priority
+            });
+        }
+        catch(error){
+            return { error: error.message };
+        }
     },
 };
 

@@ -47,11 +47,23 @@ tasksRoute.post('/new', async (req, res) => {
     }
 });
 
-tasksRoute.put('/:id', (req, res) => {
+tasksRoute.put('/:id', async (req, res) => {
     try{
-        console.log(`UPDATING Task #${req.params['id']}, req.body.task`);
-        res.status(400).send(`Bad request. Not implemented !`);
+        console.log(`UPDATING Task #${req.params.id}, req.body.task`);
+        const { rows, error } = await tasksController.updateTask(req.params.id, req.body);
+        if(error){
+            res.status(400);
         }
+        else {
+            if (rows.length == 0){
+                res.status(404);
+            }
+            else{
+                res.status(200);
+            }
+        }
+        res.send({ rows, error});
+    }
     catch(e){
         processError(e, res);
     }

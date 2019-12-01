@@ -93,7 +93,6 @@ dbLibrary = {
     },
     addTask: async function ({description, dueDate, createdOn, modifiedOn, done, priority} = newTask){
 
-        //const {description, dueDate, creationdate, modifiedon, done, priority} = newTask = newTask;
         console.log(`DB - addTask (${description}, ${dueDate}, ${createdOn}, ${modifiedOn}, ${done}, ${priority})`);
         const addQuery = {
             text: `insert into tasks (description, duedate, creationdate, modifiedon, done, priority) values ($1, $2, $3, $4, $5, $6) returning id, description`,
@@ -120,7 +119,35 @@ dbLibrary = {
             client.release();
             return results;
         }
-    }
+    },
+    updateTask: async function ({id, description, dueDate, modifiedOn, done, priority} = task){
+        console.log(`DB - update task (${id}): (${description}, ${dueDate},${modifiedOn}, ${done}, ${priority})`);
+        const updateQuery = {
+            text: `update tasks set description = $1, duedate = $2, done = $3, priority = $4, modifiedon = $5 where id = $6 returning id, description, duedate, done, priority, modifiedon`,
+            values: [description, dueDate, done, priority, modifiedOn, id]
+        };
+
+        let results = {
+            rows: [], 
+            error: null
+        };
+        let client = null;
+
+        try{
+            client = await pool.connect();
+            let r = await client.query(updateQuery);
+            results.rows = r.rows;
+            console.table(results.rows);
+        }
+        catch(e){
+            console.log(e);
+            results.error = `A DB Error Hapened - Can't update task`;
+        }
+        finally {
+            client.release();
+            return results;
+        }
+    },
 }
 
 module.exports = dbLibrary;

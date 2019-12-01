@@ -2,13 +2,20 @@ const sanitizer = require('../helpers/sanitizer');
 
 module.exports = {
     getCompleteValidTask: function ({
-            description,
-            dueDate = null,
-            createdOn = null,
-            modifiedOn = null,
-            done = 0,
-            priority = 100}){
+        id = null,    
+        description,
+        dueDate = null,
+        createdOn = null,
+        modifiedOn = null,
+        done = 0,
+        priority = 100}){
         
+
+        // if provided Validate CreationDate
+        if(id && !sanitizer.isPositiveInteger(id)){
+            throw new TypeError(`id (${id}) is not a valid id`);
+        }
+
         // if provided Validate CreationDate
         if(createdOn){
             if (!sanitizer.isValidDateTimeFormat(createdOn)){
